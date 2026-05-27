@@ -1,0 +1,432 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[ ]:
+
+
+# NETWORK TRAFFIC & SECURITY INSIGHTS DASHBOARD
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+
+# In[ ]:
+
+
+rf = pd.read_csv("logs.csv")
+rf.columns = rf.columns.str.strip()
+print(rf.columns)
+
+print(rf.head())
+
+
+# In[ ]:
+
+
+print("\n DATASET INFORMATION")
+print(rf.info())
+
+
+# In[ ]:
+
+
+#remove duplicates and handle missing value
+rf = rf.drop_duplicates()
+rf = rf.dropna()
+
+
+# In[ ]:
+
+
+#Rows and column
+print("\n Rows and Columns")
+print(rf.shape)
+
+
+# In[ ]:
+
+
+#Function for Finding Suspicious IPS
+
+def find_suspicious_ips(data):
+    blocked = data[data["action"] == "blocked"]
+    suspicious = blocked["source_ip"].value_counts()
+    return suspicious
+
+
+# In[ ]:
+
+
+#Function to show protocl usage
+
+def show_protocols(data):
+    protocols = data["protocol"].value_counts()
+    return protocols
+
+
+# In[ ]:
+
+
+# Threat level count
+
+print("\nThreat Label Count")
+print(rf["threat_label"].value_counts())
+
+
+# In[ ]:
+
+
+#Blocked Requests
+
+blocked_requests = rf[rf["action"] == "blocked"]
+print("\nTotal Block Requests")
+print(len(blocked_requests))
+
+
+# In[ ]:
+
+
+#Suspicious Ip Analysis
+
+suspicious_ips = find_suspicious_ips(rf)
+print("\nTop Suspicious source IPS")
+print(suspicious_ips.head(10))
+
+
+# In[ ]:
+
+
+rf.head(10)
+
+
+# In[ ]:
+
+
+#Protocol Usage
+
+print("\nProtocol Usage")
+print(show_protocols(rf))
+
+
+# In[ ]:
+
+
+#Top request paths
+
+print("\nTop Request Paths")
+print(rf["request_path"].value_counts().head())
+
+
+# In[ ]:
+
+
+#Most Targeted Destination Ips
+
+print("\nTop Destination Ips")
+print(rf["dest_ip"].value_counts().head())
+
+
+# In[ ]:
+
+
+#Total Bytes Transfered
+print("\nTotal Bytes Transferred")
+print(rf["bytes_transferred"].value_counts().head())
+
+
+# In[ ]:
+
+
+total_requests = len(rf)
+
+blocked_requests = len(
+    rf[rf["action"] == "blocked"]
+)
+
+allowed_requests = len(
+    rf[rf["action"] == "allowed"]
+)
+
+malicious_requests = len(
+    rf[rf["threat_label"] == "malicious"]
+)
+
+suspicious_requests = len(
+    rf[rf["threat_label"] == "suspicious"]
+)
+
+benign_requests = len(
+    rf[rf["threat_label"] == "benign"]
+)
+
+print("\n=========================")
+print("SECURITY KPI METRICS")
+print("=========================")
+
+print("Total Requests :", total_requests)
+print("Blocked Requests :", blocked_requests)
+print("Allowed Requests :", allowed_requests)
+print("Malicious Requests :", malicious_requests)
+print("Suspicious Requests :", suspicious_requests)
+print("Benign Requests :", benign_requests)
+
+
+# In[ ]:
+
+
+# SECURITY RISK SCORE
+
+malicious_percent = (
+    malicious_requests / total_requests
+) * 100
+
+if malicious_percent < 5:
+
+    risk_level = "LOW RISK"
+
+elif malicious_percent < 15:
+
+    risk_level = "MEDIUM RISK"
+
+else:
+
+    risk_level = "HIGH RISK"
+
+print("\nSECURITY RISK LEVEL")
+print(risk_level)
+
+
+# In[ ]:
+
+
+# VISUALIZATION 1
+# THREAT LABEL DISTRIBUTION
+
+plt.figure(figsize=(6,5))
+sns.countplot(
+    x="threat_label",
+    data=rf
+)
+
+plt.title("Threat Label Distribution")
+
+plt.xlabel("Threat Label")
+
+plt.ylabel("Count")
+
+plt.show()
+
+
+# In[ ]:
+
+
+# VISUALIZATION 2
+# ALLOWED VS BLOCKED REQUESTS
+
+plt.figure(figsize=(6,5))
+
+sns.countplot(
+    x = "action",
+    data = rf
+)
+
+plt.title("Allowed vs Blocked Request")
+plt.xlabel("Action")
+plt.ylabel("Count")
+plt.show()
+
+
+# In[ ]:
+
+
+# VISUALIZATION 3
+# TOP SUSPICIOUS IPS
+
+top_ips = suspicious_ips.head(20)
+
+plt.figure(figsize = (10,5))
+
+sns.barplot(
+    x = top_ips.index,
+    y = top_ips.values
+)
+
+plt.title("Top Suspicious Source Ips")
+plt.xlabel("Source IP")
+plt.ylabel("Blocked Requests")
+plt.xticks(rotation=45)
+plt.show()
+
+
+# In[ ]:
+
+
+# VISUALIZATION 4
+# PROTOCOL DISTRIBUTION
+
+protocol_count = rf["protocol"].value_counts()
+
+plt.figure(figsize=(7,7))
+
+protocol_count.plot(
+    kind = "pie",
+    autopct = "%1.1f%%"
+)
+
+plt.title("Protocol Distribution")
+plt.ylabel("")
+plt.show
+
+
+# In[ ]:
+
+
+# VISUALIZATION 5
+# TOP REQUEST PATHS
+
+top_paths = rf["request_path"].value_counts().head(5)
+
+plt.figure(figsize=(8,5))
+
+sns.barplot(
+    x = top_paths.index,
+    y = top_paths.values
+)
+
+plt.title("Top Request Paths")
+plt.xlabel("Request Path")
+plt.ylabel("Count")
+plt.xticks(rotation=20)
+plt.show()
+
+
+# In[ ]:
+
+
+# VISUALIZATION 6
+# TOP MALICIOUS USER AGENTS
+
+malicious_agents = rf[
+    rf["threat_label"] == "malicious"
+]
+
+top_agents = malicious_agents[
+    "user_agent"
+].value_counts().head(10)
+
+plt.figure(figsize=(12,5))
+
+sns.barplot(
+    x=top_agents.values,
+    y=top_agents.index,
+    palette="magma"
+)
+
+plt.title("Top Malicious User Agents")
+plt.xlabel("Count")
+plt.ylabel("User Agent")
+
+plt.show()
+
+
+
+# In[ ]:
+
+
+#Visualization 7
+#Log Type Analysis
+
+plt.figure(figsize=(8,5))
+
+sns.countplot(
+    x="log_type",
+    data=rf,
+    hue="threat_label",
+    palette="coolwarm"
+)
+
+plt.title("Threats by Log Type")
+plt.xlabel("Log Type")
+plt.ylabel("Count")
+
+plt.show()
+
+
+# In[ ]:
+
+
+#Visualization 8
+#Daily Network Traffic
+
+daily_traffic = rf.groupby("timestamp")["action"].count()
+
+plt.figure(figsize=(12,5))
+
+daily_traffic.plot()
+
+plt.title("Daily Network Traffic")
+plt.xlabel("Date")
+plt.ylabel("Requests")
+
+plt.grid(True)
+
+plt.show()
+
+
+# In[ ]:
+
+
+# EXPORT REPORT
+
+suspicious_ips.to_csv(
+    "suspicious_ips_report.csv"
+)
+
+print("\nSUSPICIOUS IP REPORT SAVED SUCCESSFULLY")
+
+
+# NETWORKING CONCEPTS USED
+
+print("\nNETWORKING CONCEPTS USED IN PROJECT")
+
+print("""
+
+1. IP Address:
+   Identifies devices in the network.
+
+2. Protocol:
+   Rules used for communication such as HTTP,
+   TCP, HTTPS, FTP.
+
+3. Blocked Requests:
+   Requests denied due to suspicious behavior.
+
+4. Traffic Analysis:
+   Monitoring movement of network data.
+
+5. Threat Detection:
+   Detecting malicious or suspicious activity.
+
+6. Firewall Logs:
+   Security records generated by firewalls.
+
+7. Intrusion Detection:
+   Identifying possible cyber attacks.
+
+8. User Agent Analysis:
+   Detecting suspicious browser or tool activity.
+
+9. Security Risk Analysis:
+   Measuring overall network threat level.
+
+""")
+
+print("\nPROJECT COMPLETED SUCCESSFULLY")
+
+
+# In[ ]:
+
+
+
+
