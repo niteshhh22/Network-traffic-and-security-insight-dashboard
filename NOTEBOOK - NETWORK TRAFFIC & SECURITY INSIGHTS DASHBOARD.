@@ -1,9 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[ ]:
-
-
 # NETWORK TRAFFIC & SECURITY INSIGHTS DASHBOARD
 
 import pandas as pd
@@ -11,24 +5,14 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-# In[ ]:
-
-
 rf = pd.read_csv("logs.csv")
 rf.columns = rf.columns.str.strip()
 print(rf.columns)
-
 print(rf.head())
-
-
-# In[ ]:
 
 
 print("\n DATASET INFORMATION")
 print(rf.info())
-
-
-# In[ ]:
 
 
 #remove duplicates and handle missing value
@@ -36,106 +20,62 @@ rf = rf.drop_duplicates()
 rf = rf.dropna()
 
 
-# In[ ]:
-
-
 #Rows and column
 print("\n Rows and Columns")
 print(rf.shape)
 
 
-# In[ ]:
-
-
 #Function for Finding Suspicious IPS
-
 def find_suspicious_ips(data):
     blocked = data[data["action"] == "blocked"]
     suspicious = blocked["source_ip"].value_counts()
     return suspicious
 
 
-# In[ ]:
-
-
 #Function to show protocl usage
-
 def show_protocols(data):
     protocols = data["protocol"].value_counts()
     return protocols
 
 
-# In[ ]:
-
-
 # Threat level count
-
 print("\nThreat Label Count")
 print(rf["threat_label"].value_counts())
 
 
-# In[ ]:
-
-
 #Blocked Requests
-
 blocked_requests = rf[rf["action"] == "blocked"]
 print("\nTotal Block Requests")
 print(len(blocked_requests))
 
 
-# In[ ]:
-
-
 #Suspicious Ip Analysis
-
 suspicious_ips = find_suspicious_ips(rf)
 print("\nTop Suspicious source IPS")
 print(suspicious_ips.head(10))
 
 
-# In[ ]:
-
-
 rf.head(10)
 
 
-# In[ ]:
-
-
 #Protocol Usage
-
 print("\nProtocol Usage")
 print(show_protocols(rf))
 
 
-# In[ ]:
-
-
 #Top request paths
-
 print("\nTop Request Paths")
 print(rf["request_path"].value_counts().head())
 
 
-# In[ ]:
-
-
 #Most Targeted Destination Ips
-
 print("\nTop Destination Ips")
 print(rf["dest_ip"].value_counts().head())
-
-
-# In[ ]:
 
 
 #Total Bytes Transfered
 print("\nTotal Bytes Transferred")
 print(rf["bytes_transferred"].value_counts().head())
-
-
-# In[ ]:
 
 
 total_requests = len(rf)
@@ -172,9 +112,6 @@ print("Suspicious Requests :", suspicious_requests)
 print("Benign Requests :", benign_requests)
 
 
-# In[ ]:
-
-
 # SECURITY RISK SCORE
 
 malicious_percent = (
@@ -197,9 +134,6 @@ print("\nSECURITY RISK LEVEL")
 print(risk_level)
 
 
-# In[ ]:
-
-
 # VISUALIZATION 1
 # THREAT LABEL DISTRIBUTION
 
@@ -218,8 +152,6 @@ plt.ylabel("Count")
 plt.show()
 
 
-# In[ ]:
-
 
 # VISUALIZATION 2
 # ALLOWED VS BLOCKED REQUESTS
@@ -236,8 +168,6 @@ plt.xlabel("Action")
 plt.ylabel("Count")
 plt.show()
 
-
-# In[ ]:
 
 
 # VISUALIZATION 3
@@ -259,8 +189,6 @@ plt.xticks(rotation=45)
 plt.show()
 
 
-# In[ ]:
-
 
 # VISUALIZATION 4
 # PROTOCOL DISTRIBUTION
@@ -278,8 +206,6 @@ plt.title("Protocol Distribution")
 plt.ylabel("")
 plt.show
 
-
-# In[ ]:
 
 
 # VISUALIZATION 5
@@ -300,8 +226,6 @@ plt.ylabel("Count")
 plt.xticks(rotation=20)
 plt.show()
 
-
-# In[ ]:
 
 
 # VISUALIZATION 6
@@ -330,10 +254,6 @@ plt.ylabel("User Agent")
 plt.show()
 
 
-
-# In[ ]:
-
-
 #Visualization 7
 #Log Type Analysis
 
@@ -353,7 +273,6 @@ plt.ylabel("Count")
 plt.show()
 
 
-# In[ ]:
 
 
 #Visualization 8
@@ -374,11 +293,8 @@ plt.grid(True)
 plt.show()
 
 
-# In[ ]:
-
 
 # EXPORT REPORT
-
 suspicious_ips.to_csv(
     "suspicious_ips_report.csv"
 )
@@ -423,10 +339,3 @@ print("""
 """)
 
 print("\nPROJECT COMPLETED SUCCESSFULLY")
-
-
-# In[ ]:
-
-
-
-
